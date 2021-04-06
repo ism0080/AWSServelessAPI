@@ -60,11 +60,7 @@ Resources:
     Properties:
       Role: !GetAtt LambdaRole.Arn
       CodeUri:
-        Bucket:
-           - !Join
-             - ''
-             - - 'arn:aws:s3:::'
-               - !Sub "${S3BucketArtifactBucket}"
+        Bucket: !Ref S3BucketArtifactBucket
         Key: !Sub "lambda/${AppName}/${BuildId}/${AppName}-${BuildId}.zip"
       Policies:
         - AWSLambda_FullAccess
