@@ -7,8 +7,22 @@ on:
       - main
 
 jobs:
-  deploy:
-    name: Deploy Lambda Function
+  validate:
+    name: Validate Cloudformation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.CF_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.CF_SECRET_ACCESS_KEY }}
+          aws-region: 'ap-southeast-2'
+      - run: |
+          aws cloudformation validate-template --template-body file://deployment/app/templates/serverless.template
+  package:
+    name: Package Lambda Function
+    needs: [validate]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,12 +33,31 @@ jobs:
       - name: Install Lambda Tools
         run: |
           dotnet tool install -g Amazon.Lambda.Tools
+      - name: Package App
+        run: |
+          dotnet lambda package --output-package out/lambda/AWSServerlessAPI-${GITHUB_RUN_NUMBER}.zip
+      - name: Create Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: lambda_artifact
+          path: ./out/lambda
+  upload:
+    name: Upload Artifact to S3 and Create or Update Cloudformation Stack
+    needs: [package]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.CF_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.CF_SECRET_ACCESS_KEY }}
           aws-region: 'ap-southeast-2'
-      - name: Deploy Serverless
+      - name: Upload Artifact to S3
         run: |
-          dotnet lambda deploy-serverless --template deployment/app/templates/serverless.template --stackname AWSServerlessAPI-example --region ap-southeast-2 --s3-bucket ${{ secrets.S3_DEPLOY_BUCKET }}
+          aws s3 sync lambda_artifact s3://${{ secrets.S3_DEPLOY_BUCKET }}/lambda/AWSServerlessAPI
+      - name: Create or Update Cloudformation Stack
+        run: |
+          aws cloudformation deploy --template-file deployment/app/templates/serverless.template --stack-name AWSServerlessAPI-example --parameter-overrides BuildId=${GITHUB_RUN_NUMBER} AppName=AWSServerlessAPI

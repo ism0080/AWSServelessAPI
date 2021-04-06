@@ -17,6 +17,10 @@ Parameters:
   S3BucketArtifactBucket:
     Type: String
     Default: artifact-store-applications-ism0080
+  BuildId:
+    Type: String
+  AppName:
+    Type: String
 
 Resources:
   LambdaRole:
@@ -55,7 +59,13 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Role: !GetAtt LambdaRole.Arn
-      CodeUri: ""
+      CodeUri:
+        Bucket:
+           - !Join
+             - ''
+             - - 'arn:aws:s3:::'
+               - !Sub "${S3BucketArtifactBucket}/*"
+        Key: !Sub 'lambda/${AppName}/${BuildId}/${AppName}-${BuildId}.zip'
       Policies:
         - AWSLambda_FullAccess
       Events:
