@@ -41,7 +41,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: lambda_artifact
-          path: ./out/lambda
+          path: .src/AWSServerlessAPI/out/lambda
   upload:
     name: Upload Artifact to S3 and Create or Update Cloudformation Stack
     needs: [package]
