@@ -64,8 +64,8 @@ Resources:
            - !Join
              - ''
              - - 'arn:aws:s3:::'
-               - !Sub "${S3BucketArtifactBucket}/*"
-        Key: !Sub 'lambda/${AppName}/${BuildId}/${AppName}-${BuildId}.zip'
+               - !Sub "${S3BucketArtifactBucket}"
+        Key: !Sub "lambda/${AppName}/${BuildId}/${AppName}-${BuildId}.zip"
       Policies:
         - AWSLambda_FullAccess
       Events:
