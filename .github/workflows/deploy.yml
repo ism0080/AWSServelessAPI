@@ -34,6 +34,7 @@ jobs:
         run: |
           dotnet tool install -g Amazon.Lambda.Tools
       - name: Package App
+        working-directory: ./src/AWSServerlessAPI
         run: |
           dotnet lambda package --output-package out/lambda/AWSServerlessAPI-${GITHUB_RUN_NUMBER}.zip
       - name: Create Artifact
