@@ -61,7 +61,7 @@ Resources:
       Role: !GetAtt LambdaRole.Arn
       CodeUri:
         Bucket: !Ref S3BucketArtifactBucket
-        Key: !Sub "lambda/${AppName}/${BuildId}/${AppName}-${BuildId}.zip"
+        Key: !Sub "lambda/${AppName}/${AppName}-${BuildId}.zip"
       Policies:
         - AWSLambda_FullAccess
       Events:
