@@ -61,4 +61,4 @@ jobs:
           aws s3 sync lambda_artifact s3://${{ secrets.S3_DEPLOY_BUCKET }}/lambda/AWSServerlessAPI
       - name: Create or Update Cloudformation Stack
         run: |
-          aws cloudformation deploy --template-file deployment/app/templates/serverless.template --stack-name AWSServerlessAPI-example --parameter-overrides BuildId=${GITHUB_RUN_NUMBER} AppName=AWSServerlessAPI
+          aws cloudformation deploy --template-file deployment/app/templates/serverless.template --stack-name AWSServerlessAPI-example --parameter-overrides BuildId=${GITHUB_RUN_NUMBER} AppName=AWSServerlessAPI --capabilities CAPABILITY_IAM
